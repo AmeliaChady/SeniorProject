@@ -15,9 +15,17 @@ Note: Assumes list is ordered least to greatest in end times.
 
 interval_list: intervals to look through
 index: the index the interval to check against is stored in. 
+
+:returns index of found interval
 '''
 def p(interval_list, index):
-	pass
+	interval = interval_list[index]
+	current = index - 1
+	while current > -1:
+		current_interval = interval_list[current]
+		if current_interval.end < interval.start:
+			return current
+	return -1
 
 
 '''
