@@ -25,6 +25,7 @@ def p(interval_list, index):
 		current_interval = interval_list[current]
 		if current_interval.end < interval.start:
 			return current
+		current -= 1
 	return -1
 
 
@@ -36,10 +37,16 @@ Returns a list of the subset of intervals with the greatest weight and no overla
 
 '''
 def WIS_R_inner(interval_list, index):
-	pass
+	if index < 0:
+		return 0
+	elif interval_list[index].weight == 0:
+		return 0
+	return max(
+		interval_list[index].weight + WIS_R_inner(interval_list, p(interval_list, index)),
+		WIS_R_inner(interval_list, index - 1))
 
 def WIS_R(interval_list):
-	pass
+	return WIS_R_inner(interval_list, len(interval_list)-1)
 
 
 
