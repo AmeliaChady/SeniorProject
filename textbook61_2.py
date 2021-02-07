@@ -7,42 +7,6 @@ weight (int)- importance of the interval
 '''
 Interval = namedtuple('Interval', ['start', 'end', 'weight'])
 
-'''
-gets interval test set and also prints it out
-'''
-def test_intervals():
-	intervals = []
-	print("Interval:   1-4, Weight 8")
-	intervals.append(Interval(1, 4, 8))
-	
-	print("Interval:   2-5, Weight 3")
-	intervals.append(Interval(2, 5, 3))
-	
-	print("Interval:   6-8, Weight 1")
-	intervals.append(Interval(6, 8, 1))
-	
-	print("Interval:  7-11, Weight 2")
-	intervals.append(Interval(7, 11, 2))
-	
-	print("Interval: 12-13, Weight 6")
-	intervals.append(Interval(12, 13, 6))
-	
-	print("Interval: 10-13, Weight 4")
-	intervals.append(Interval(10, 13, 4))
-	
-	print("Interval: 13-16, Weight 9")
-	intervals.append(Interval(13, 16, 9))
-	
-	print("Interval: 10-20, Weight 1")
-	intervals.append(Interval(10, 20, 1))
-	
-	print("Interval: 16-25, Weight 6")
-	intervals.append(Interval(16, 25, 6))
-	
-	print("Interval: 22-26, Weight 6")
-	intervals.append(Interval(22, 26, 6))
-	
-	return intervals
 
 
 '''
@@ -86,7 +50,13 @@ def WIS_R(interval_list):
 	return WIS_R_inner(interval_list, len(interval_list)-1)
 
 
+'''
+Weighted Interval Scheduling - Recursive w/ Memoization
 
+Takes in a list of intervals ordered least to greatest in end times
+Returns a list of the subset of intervals with the greatest weight and no overlap.
+
+'''
 def WIS_RM_inner(interval_list, index, memo):
 	if index < 0:
 		return 0
@@ -94,9 +64,11 @@ def WIS_RM_inner(interval_list, index, memo):
 		return memo[index]
 	elif interval_list[index].weight == 0:
 		return 0
-	memo[index] = interval_list[index].weight + WIS_RM_inner(interval_list, p(interval_list, index), memo)
-	index_minus_1 = WIS_RM_inner(interval_list, index - 1, memo)
-	return max(memo[index], index_minus_1)
+	index_fit = interval_list[index].weight + \
+				  WIS_RM_inner(interval_list, p(interval_list, index), memo)
+	index_minus = WIS_RM_inner(interval_list, index - 1, memo)
+	memo[index] = max(index_fit, index_minus)
+	return memo[index]
 
 def WIS_RM(interval_list):
 	memo = [None]*len(interval_list)
