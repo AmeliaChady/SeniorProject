@@ -75,6 +75,20 @@ def WIS_RM(interval_list):
 	ans = WIS_RM_inner(interval_list, len(interval_list)-1, memo)
 	return ans
 
+
+
+
 def WIS_L(interval_list):
-	pass
+	memo = [None]*len(interval_list)
+
+	memo[0] = interval_list[0].weight
+
+	for x in range(1, len(interval_list)):
+		index_fit = interval_list[x].weight
+		p_index = p(interval_list, x)
+		if p_index >= 0:
+			index_fit += memo[p_index]
+		memo[x] = max(index_fit, memo[x-1])
+
+	return max(memo)
 
