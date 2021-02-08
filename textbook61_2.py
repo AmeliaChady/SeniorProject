@@ -76,8 +76,13 @@ def WIS_RM(interval_list):
 	return ans
 
 
+'''
+Weighted Interval Scheduling - Linear
 
+Takes in a list of intervals ordered least to greatest in end times
+Returns a list of the subset of intervals with the greatest weight and no overlap.
 
+'''
 def WIS_L(interval_list):
 	memo = [None]*len(interval_list)
 
