@@ -44,42 +44,53 @@ def least_squares_error(coordinate_list):
         error += (coord.y - line.a * coord.x - line.b)**2
     return Error(error, line)
 
-
-def find_minimized_error(error_list):
-    if len(error_list) < 2:
+depth = 0
+def find_minimized_error(error_list, minimum_x):
+    global depth
+    err_len = len(error_list)
+    if err_len < 2:
         return None
-    #print(len(error_list))
-    minimum_error = -1
-    minimum_error_list = []
+    depth += 1
+    #print(len(error_list[0]), err_len)
+    er = error_list[0][err_len-2]
+    if er is None:
+        return None
+    minimum_error = er.error
+    minimum_error_list = [er.line]
+    end_y = er.line.x_end
     j = len(error_list)-1
-    for i in range(len(error_list)):
+    for i in range(err_len):
         try:
             if not(j-i-1 < 0):
-                #print(i, j-i-1, len(error_list[i]))
                 error_tuple = error_list[i][j-i-1]
-                #print(error_tuple)
             else:
                 error_tuple = None
         except IndexError:
-            #print("failed")
             error_tuple = None
 
-        error_tuple_minimized = find_minimized_error(error_list[:i-1])
-        if error_tuple is not None and error_tuple_minimized is not None:
-            print(error_tuple_minimized[0])
-            if error_tuple_minimized[0] != -1:
-                error = error_tuple.error + C + error_tuple_minimized[0]
-                if error < minimum_error or minimum_error == -1:
-                    #print("tick", error)
-                    minimum_error_list = error_tuple_minimized[1]
-                    minimum_error_list.append(error_tuple.line)
-                    minimum_error = error
-            else:
-                error = error_tuple.error + C
-                if error < minimum_error or minimum_error == -1:
-                    #print("tick", error)
-                    minimum_error_list = [error_tuple.line]
-                    minimum_error = error
+        if error_tuple is not None:
+            error_tuple_minimized = None
+            if not i-1 < 0:
+                error_tuple_minimized = find_minimized_error(error_list[:i-1], minimum_x)
+            if error_tuple_minimized is not None:
+                if error_tuple_minimized[0] != -1:
+                    error = error_tuple.error + C + error_tuple_minimized[0]
+                    if (error < minimum_error or minimum_error == -1) \
+                            and error_tuple_minimized[1][0].x_start == minimum_x\
+                            and (error_tuple_minimized[1][-1].x_end == end_y
+                                or error_tuple.line.x_end == end_y):
+                        #print("tick", error)
+                        minimum_error_list = error_tuple_minimized[1]
+                        minimum_error_list.append(error_tuple.line)
+                        minimum_error = error
+                else:
+                    error = error_tuple.error + C
+                    if (error < minimum_error or minimum_error == -1) \
+                            and error_tuple.line.x_start == minimum_x\
+                            and error_tuple.line.x_end == end_y:
+                        #print("tick", error)
+                        minimum_error_list = [error_tuple.line]
+                        minimum_error = error
 
     return minimum_error, minimum_error_list
 
@@ -90,6 +101,7 @@ Takes in a set of points and returns a set of points marking the ends of each li
 def segmented_least_squares(coordinate_list):
     length = len(coordinate_list)
 
+    minimum_x = coordinate_list[0].x
     # getting errors
     error_list = []
     for i in range(length):
@@ -99,13 +111,15 @@ def segmented_least_squares(coordinate_list):
         error_list.append(inner_error_list)
 
     # getting subsets
-    found = find_minimized_error(error_list)[1]
+    found = find_minimized_error(error_list, minimum_x)[1]
     line_coords = []
     if len(found) > 0:
         line = found[0]
         line_coords.append(Coordinates(line.x_start, line.a*line.x_start + line.b))
         for i in range(1, len(found)):
-            pass
+            iline = found[i]
+            line_coords.append(Coordinates(iline.x_start, iline.a*iline.x_start + iline.b))
+            line_coords.append(Coordinates(iline.x_end, iline.a*iline.x_end + iline.b))
         line = found[-1]
         line_coords.append(Coordinates(line.x_end, line.a*line.x_end + line.b))
     return line_coords
