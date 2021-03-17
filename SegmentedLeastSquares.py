@@ -3,7 +3,7 @@ from collections import namedtuple
 Coordinates = namedtuple('Coordinates', ['x', 'y'])
 Line = namedtuple('Line', ['a', 'b', 'x_start', 'x_end'])
 Error = namedtuple('Error', ['error', 'line'])
-C = 0
+C = 483
 
 
 def find_line_meeting(line1, line2):
@@ -114,14 +114,10 @@ def segmented_least_squares(coordinate_list):
     found = find_minimized_error(error_list, minimum_x)[1]
     line_coords = []
     if len(found) > 0:
-        line = found[0]
-        line_coords.append(Coordinates(line.x_start, line.a*line.x_start + line.b))
-        for i in range(1, len(found)):
+        for i in range(0, len(found)):
             iline = found[i]
             line_coords.append(Coordinates(iline.x_start, iline.a*iline.x_start + iline.b))
             line_coords.append(Coordinates(iline.x_end, iline.a*iline.x_end + iline.b))
-        line = found[-1]
-        line_coords.append(Coordinates(line.x_end, line.a*line.x_end + line.b))
     return line_coords
 
     '''line = least_squares(coordinate_list)
